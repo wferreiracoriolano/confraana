@@ -212,7 +212,7 @@
       font-size: 1rem;
     }
     .items-list, .draws-list {
-      max-height: 190px;
+      max-height: 260px;
       overflow-y: auto;
       margin-top: 6px;
       border-radius: 14px;
@@ -236,9 +236,6 @@
     .draw-row:nth-child(even) {
       background: rgba(15, 23, 42, 0.95);
     }
-    .item-row span, .draw-row span {
-      font-size: 0.9rem;
-    }
     .draw-row-main {
       display: flex;
       flex-direction: column;
@@ -255,26 +252,9 @@
       font-size: 0.75rem;
       padding: 3px 9px;
       border-radius: 999px;
-      background: rgba(30, 64, 175, 0.4);
-      color: #bfdbfe;
-      border: 1px solid rgba(59, 130, 246, 0.7);
-    }
-    .pill-item {
       background: rgba(120, 53, 15, 0.4);
       color: #fed7aa;
-      border-color: rgba(248, 153, 64, 0.8);
-    }
-    .public-section-title {
-      margin-top: 18px;
-      margin-bottom: 4px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #e5e7eb;
-    }
-    .public-section-sub {
-      margin: 0 0 4px;
-      font-size: 0.8rem;
-      color: #9ca3af;
+      border: 1px solid rgba(248, 153, 64, 0.8);
     }
     /* Modal login */
     .modal-backdrop {
@@ -339,7 +319,7 @@
     </header>
 
     <div class="main">
-      <!-- Lado esquerdo: público -->
+      <!-- Lado esquerdo: somente participação -->
       <div class="card">
         <h2>Participar</h2>
         <p>Preencha seu nome e clique em <strong>Girar roleta</strong>. Se já tiver participado, vamos mostrar o que você já ficou de levar.</p>
@@ -355,43 +335,29 @@
             <div id="resultText" class="result-item">— aguardando sorteio —</div>
           </div>
         </div>
-
-        <!-- Itens públicos -->
-        <div>
-          <h3 class="public-section-title">Itens cadastrados na roleta</h3>
-          <p class="public-section-sub">Todo mundo consegue ver quais tipos de itens estão sendo sorteados.</p>
-          <div class="items-list" id="publicItemsList"></div>
-        </div>
-
-        <!-- Sorteios públicos -->
-        <div>
-          <h3 class="public-section-title">Quem já está levando o quê</h3>
-          <p class="public-section-sub">Lista visível para todos, para evitar repetição e organizar melhor.</p>
-          <div class="draws-list" id="publicDrawsList"></div>
-        </div>
       </div>
 
-      <!-- Lado direito: admin -->
-      <div class="card admin-section" id="adminCard" style="opacity: 0.5; pointer-events: none;">
+      <!-- Lado direito: lista pública + área admin escondida -->
+      <div class="card admin-section" id="adminCard">
         <h2>
           Painel do organizador
           <span id="badgeAdmin" class="badge-admin" style="display:none;">Admin ativo</span>
         </h2>
-        <p>Faça login como <code>admin / admin</code> para cadastrar opções e ver quem vai levar o quê.</p>
+        <p>Abaixo todos conseguem ver quem está levando o quê. Use o login <code>admin / admin</code> para cadastrar as opções da roleta.</p>
 
-        <div id="adminContent" style="display:none;">
-          <!-- Cadastro de itens -->
-          <h3>Opções da roleta</h3>
+        <!-- Lista pública (sempre visível) -->
+        <h3 style="margin: 8px 0 4px;">Quem já está levando o quê</h3>
+        <div class="draws-list" id="publicDrawsList"></div>
+
+        <!-- Área só do admin -->
+        <div id="adminContent" style="display:none; margin-top: 14px;">
+          <h3>Opções da roleta (somente admin)</h3>
           <div class="field-group">
             <input type="text" id="itemInput" placeholder="Ex: Carne, Refrigerante, Sobremesa..." />
             <button id="btnAddItem" class="btn">Adicionar</button>
           </div>
           <div id="statusAdmin" class="status"></div>
           <div class="items-list" id="itemsList"></div>
-
-          <!-- Lista de sorteios (admin) -->
-          <h3>Participantes & sorteios</h3>
-          <div class="draws-list" id="drawsList"></div>
         </div>
       </div>
     </div>
@@ -418,7 +384,7 @@
   </div>
 
   <script>
-    const API_BASE = ""; // mesma origem do backend
+    const API_BASE = "";
     const TOKEN_KEY = "confraternizacao_admin_token";
 
     const nomeInput = document.getElementById("nomeInput");
@@ -427,7 +393,6 @@
     const rouletteBox = document.getElementById("rouletteBox");
     const statusUser = document.getElementById("statusUser");
 
-    const loginArea = document.getElementById("loginArea");
     const btnLogin = document.getElementById("btnLogin");
     const loginModal = document.getElementById("loginModal");
     const btnCancelLogin = document.getElementById("btnCancelLogin");
@@ -442,25 +407,18 @@
     const itemInput = document.getElementById("itemInput");
     const btnAddItem = document.getElementById("btnAddItem");
     const itemsList = document.getElementById("itemsList");
-    const drawsList = document.getElementById("drawsList");
     const statusAdmin = document.getElementById("statusAdmin");
 
-    // novos: listas públicas
-    const publicItemsList = document.getElementById("publicItemsList");
     const publicDrawsList = document.getElementById("publicDrawsList");
 
     let adminToken = null;
 
     function setAdminUI(enabled) {
       if (enabled) {
-        adminCard.style.opacity = "1";
-        adminCard.style.pointerEvents = "auto";
         adminContent.style.display = "block";
         badgeAdmin.style.display = "inline-block";
         btnLogin.textContent = "Sair";
       } else {
-        adminCard.style.opacity = "0.5";
-        adminCard.style.pointerEvents = "none";
         adminContent.style.display = "none";
         badgeAdmin.style.display = "none";
         btnLogin.textContent = "Login admin";
@@ -502,12 +460,11 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })
         });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
           loginError.textContent = data.error || "Falha no login.";
           return;
         }
-        const data = await res.json();
         adminToken = data.token;
         localStorage.setItem(TOKEN_KEY, adminToken);
         showLoginModal(false);
@@ -525,16 +482,13 @@
       setAdminUI(false);
     }
 
-    // --------- ITENS (admin + público) ---------
     async function fetchItems() {
       try {
         const res = await fetch(API_BASE + "/api/items");
         const data = await res.json();
         renderItemsAdmin(data);
-        renderItemsPublic(data);
       } catch (e) {
         console.error(e);
-        publicItemsList.innerHTML = "<div class='status error'>Erro ao carregar itens.</div>";
       }
     }
 
@@ -560,24 +514,6 @@
         row.appendChild(span);
         row.appendChild(btnDel);
         itemsList.appendChild(row);
-      });
-    }
-
-    function renderItemsPublic(items) {
-      if (!items || items.length === 0) {
-        publicItemsList.innerHTML = "<div class='status'>Nenhuma opção cadastrada ainda.</div>";
-        return;
-      }
-      publicItemsList.innerHTML = "";
-      items.forEach((item) => {
-        const row = document.createElement("div");
-        row.className = "item-row";
-
-        const span = document.createElement("span");
-        span.textContent = item.name;
-
-        row.appendChild(span);
-        publicItemsList.appendChild(row);
       });
     }
 
@@ -618,8 +554,8 @@
           },
           body: JSON.stringify({ name })
         });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
           statusAdmin.textContent = data.error || "Erro ao criar opção.";
           return;
         }
@@ -632,56 +568,6 @@
       }
     }
 
-    // --------- SORTEIOS (admin) ---------
-    async function fetchDraws() {
-      if (!adminToken) return;
-      try {
-        const res = await fetch(API_BASE + "/api/draws", {
-          headers: { "Authorization": "Bearer " + adminToken }
-        });
-        if (!res.ok) {
-          if (res.status === 401) {
-            logoutAdmin();
-          }
-          return;
-        }
-        const data = await res.json();
-        renderDrawsAdmin(data);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function renderDrawsAdmin(draws) {
-      if (!draws || draws.length === 0) {
-        drawsList.innerHTML = "<div class='status'>Ninguém participou ainda.</div>";
-        return;
-      }
-      drawsList.innerHTML = "";
-      draws.forEach((d) => {
-        const row = document.createElement("div");
-        row.className = "draw-row";
-
-        const main = document.createElement("div");
-        main.className = "draw-row-main";
-        const strong = document.createElement("strong");
-        strong.textContent = d.person_name;
-        const small = document.createElement("small");
-        small.textContent = new Date(d.created_at).toLocaleString("pt-BR");
-        main.appendChild(strong);
-        main.appendChild(small);
-
-        const pillItem = document.createElement("span");
-        pillItem.className = "pill pill-item";
-        pillItem.textContent = d.item_name;
-
-        row.appendChild(main);
-        row.appendChild(pillItem);
-        drawsList.appendChild(row);
-      });
-    }
-
-    // --------- SORTEIOS (público) ---------
     async function fetchPublicDraws() {
       try {
         const res = await fetch(API_BASE + "/api/draws");
@@ -713,7 +599,7 @@
         main.appendChild(small);
 
         const pillItem = document.createElement("span");
-        pillItem.className = "pill pill-item";
+        pillItem.className = "pill";
         pillItem.textContent = d.item_name;
 
         row.appendChild(main);
@@ -722,7 +608,6 @@
       });
     }
 
-    // --------- ROLETa / SORTEAR ---------
     async function sortear() {
       statusUser.textContent = "";
       statusUser.classList.remove("error");
@@ -741,7 +626,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: nome })
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
         setTimeout(() => {
           rouletteBox.classList.remove("spin");
@@ -760,8 +645,7 @@
             statusUser.textContent = "Anota aí o que você vai levar! Se voltar depois, vamos lembrar do seu item.";
           }
 
-          fetchDraws();        // atualiza painel admin
-          fetchPublicDraws();  // atualiza lista pública
+          fetchPublicDraws(); // atualiza lista pública
         }, 800);
       } catch (e) {
         console.error(e);
@@ -772,7 +656,11 @@
       }
     }
 
-    // --------- Eventos ---------
+    function refreshAdminData() {
+      fetchItems();
+    }
+
+    // eventos
     btnSortear.addEventListener("click", sortear);
     nomeInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") sortear();
@@ -794,14 +682,13 @@
       if (e.key === "Enter") loginAdmin();
     });
 
-    btnAddItem.addEventListener("click", addItem);
-    itemInput.addEventListener("keydown", (e) => {
+    btnAddItem?.addEventListener("click", addItem);
+    itemInput?.addEventListener("keydown", (e) => {
       if (e.key === "Enter") addItem();
     });
 
-    // --------- Inicialização ---------
+    // inicialização
     loadTokenFromStorage();
-    fetchItems();
     fetchPublicDraws();
   </script>
 </body>
