@@ -1,1 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roleta da Confraternização</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a, #1f2937);
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(251, 191, 36, 0.15), transparent 60%);
+      pointer-events: none;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    header span {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+    button, input {
+      font-size: 1rem;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      cursor: pointer;
+      background: #facc15;
+      color: #111827;
+      font-weight: 600;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+    }
+    .btn:hover {
+      background: #eab308;
+      box-shadow: 0 10px 25px rgba(250, 204, 21, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: none;
+    }
+    .btn-outline:hover {
+      background: rgba(148, 163, 184, 0.2);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.6);
+    }
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      gap: 24px;
+      align-items: stretch;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 768px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+    }
+    .field-group {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .field-group input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.8);
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #f9fafb;
+      outline: none;
+    }
+    .field-group input:focus {
+      border-color: #facc15;
+      box-shadow: 0 0 0 1px #facc15;
+    }
+    .roulette {
+      margin-top: 24px;
+      height: 140px;
+      border-radius: 16px;
+      border: 1px dashed rgba(156, 163, 175, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at center, rgba(31, 41, 55, 0.95), rgba(15, 23, 42, 1));
+    }
+    .roulette-inner {
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      max-width: 90%;
+    }
+    .roulette.spin {
+      animation: spinBorder 0.8s ease-in-out 2;
+    }
+    @keyframes spinBorder {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(2deg); }
+      50% { transform: rotate(-2deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .result-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .result-item {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fbbf24;
+      text-align: center;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+    .status.error {
+      color: #fca5a5;
+    }
+    /* Admin */
+    .badge-admin {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.2);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.7);
+      margin-left: 8px;
+    }
+    .admin-section {
+      font-size: 0.9rem;
+    }
+    .admin-section h3 {
+      margin: 12px 0 6px;
+      font-size: 1rem;
+    }
+    .items-list, .draws-list {
+      max-height: 180px;
+      overflow-y: auto;
+      margin-top: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      padding: 6px;
+      background: rgba(15, 23, 42, 0.9);
+    }
+    .item-row, .draw-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.1s;
+    }
+    .item-row:nth-child(odd),
+    .draw-row:nth-child(odd) {
+      background: rgba(17, 24, 39, 0.8);
+    }
+    .item-row:nth-child(even),
+    .draw-row:nth-child(even) {
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .item-row span, .draw-row span {
+      font-size: 0.88rem;
+    }
+    .draw-row-main {
+      display: flex;
+      flex-direction: column;
+    }
+    .draw-row-main strong {
+      font-size: 0.95rem;
+    }
+    .draw-row-main small {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.3);
+      color: #bfdbfe;
+      border: 1px solid rgba(59, 130, 246, 0.6);
+    }
+    .pill-item {
+      background: rgba(120, 53, 15, 0.3);
+      color: #fed7aa;
+      border-color: rgba(248, 153, 64, 0.7);
+    }
+    /* Modal login simples */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal {
+      background: #020617;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 320px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+    .modal h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    .modal .field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    .modal label {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      color: #9ca3af;
+    }
+    .modal input {
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.8);
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #f9fafb;
+    }
+    .modal-actions {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Roleta da Confraternização</h1>
+        <span>Digite seu nome, gire a roleta e descubra o que levar 🎉</span>
+      </div>
+      <div id="loginArea">
+        <button id="btnLogin" class="btn-outline btn">Login admin</button>
+      </div>
+    </header>
+
+    <div class="main">
+      <!-- Lado esquerdo: Roleta para qualquer usuário -->
+      <div class="card">
+        <h2>Participar</h2>
+        <p>Preencha seu nome e clique em <strong>Girar roleta</strong>. Se já tiver participado, vamos mostrar o que você já ficou de levar.</p>
+        <div class="field-group">
+          <input type="text" id="nomeInput" placeholder="Seu nome completo" />
+          <button id="btnSortear" class="btn">Girar roleta</button>
+        </div>
+        <div id="statusUser" class="status"></div>
+
+        <div class="roulette" id="rouletteBox">
+          <div class="roulette-inner">
+            <div class="result-label">Você vai levar</div>
+            <div id="resultText" class="result-item">— aguardando sorteio —</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lado direito: Área admin -->
+      <div class="card admin-section" id="adminCard" style="opacity: 0.5; pointer-events: none;">
+        <h2>
+          Painel do organizador
+          <span id="badgeAdmin" class="badge-admin" style="display:none;">Admin ativo</span>
+        </h2>
+        <p>Faça login como <code>admin / admin</code> para cadastrar opções e ver quem vai levar o quê.</p>
+
+        <div id="adminContent" style="display:none;">
+          <!-- Cadastro de itens -->
+          <h3>Opções da roleta</h3>
+          <div class="field-group">
+            <input type="text" id="itemInput" placeholder="Ex: Refrigerante, Espetinho, Sobremesa..." />
+            <button id="btnAddItem" class="btn">Adicionar</button>
+          </div>
+          <div id="statusAdmin" class="status"></div>
+          <div class="items-list" id="itemsList"></div>
+
+          <!-- Lista de sorteios -->
+          <h3>Participantes & Sorteios</h3>
+          <div class="draws-list" id="drawsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal login -->
+  <div id="loginModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <h2>Login administrador</h2>
+      <div class="field">
+        <label for="userField">Usuário</label>
+        <input id="userField" type="text" placeholder="admin" />
+      </div>
+      <div class="field">
+        <label for="passField">Senha</label>
+        <input id="passField" type="password" placeholder="admin" />
+      </div>
+      <div id="loginError" class="status error"></div>
+      <div class="modal-actions">
+        <button id="btnCancelLogin" class="btn-outline btn">Cancelar</button>
+        <button id="btnDoLogin" class="btn">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = ""; // mesma origem do backend
+    const TOKEN_KEY = "confraternizacao_admin_token";
+
+    const nomeInput = document.getElementById("nomeInput");
+    const btnSortear = document.getElementById("btnSortear");
+    const resultText = document.getElementById("resultText");
+    const rouletteBox = document.getElementById("rouletteBox");
+    const statusUser = document.getElementById("statusUser");
+
+    const loginArea = document.getElementById("loginArea");
+    const btnLogin = document.getElementById("btnLogin");
+    const loginModal = document.getElementById("loginModal");
+    const btnCancelLogin = document.getElementById("btnCancelLogin");
+    const btnDoLogin = document.getElementById("btnDoLogin");
+    const userField = document.getElementById("userField");
+    const passField = document.getElementById("passField");
+    const loginError = document.getElementById("loginError");
+
+    const adminCard = document.getElementById("adminCard");
+    const badgeAdmin = document.getElementById("badgeAdmin");
+    const adminContent = document.getElementById("adminContent");
+    const itemInput = document.getElementById("itemInput");
+    const btnAddItem = document.getElementById("btnAddItem");
+    const itemsList = document.getElementById("itemsList");
+    const drawsList = document.getElementById("drawsList");
+    const statusAdmin = document.getElementById("statusAdmin");
+
+    let adminToken = null;
+
+    function setAdminUI(enabled) {
+      if (enabled) {
+        adminCard.style.opacity = "1";
+        adminCard.style.pointerEvents = "auto";
+        adminContent.style.display = "block";
+        badgeAdmin.style.display = "inline-block";
+        btnLogin.textContent = "Sair";
+      } else {
+        adminCard.style.opacity = "0.5";
+        adminCard.style.pointerEvents = "none";
+        adminContent.style.display = "none";
+        badgeAdmin.style.display = "none";
+        btnLogin.textContent = "Login admin";
+      }
+    }
+
+    function showLoginModal(show) {
+      loginModal.style.display = show ? "flex" : "none";
+      if (show) {
+        loginError.textContent = "";
+        userField.value = "admin";
+        passField.value = "";
+        userField.focus();
+      }
+    }
+
+    // Carrega token do localStorage
+    function loadTokenFromStorage() {
+      const t = localStorage.getItem(TOKEN_KEY);
+      if (t) {
+        adminToken = t;
+        setAdminUI(true);
+        refreshAdminData();
+      } else {
+        setAdminUI(false);
+      }
+    }
+
+    async function loginAdmin() {
+      loginError.textContent = "";
+      const username = userField.value.trim();
+      const password = passField.value.trim();
+      if (!username || !password) {
+        loginError.textContent = "Preencha usuário e senha.";
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + "/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          loginError.textContent = data.error || "Falha no login.";
+          return;
+        }
+        const data = await res.json();
+        adminToken = data.token;
+        localStorage.setItem(TOKEN_KEY, adminToken);
+        showLoginModal(false);
+        setAdminUI(true);
+        refreshAdminData();
+      } catch (e) {
+        console.error(e);
+        loginError.textContent = "Erro ao tentar logar.";
+      }
+    }
+
+    function logoutAdmin() {
+      adminToken = null;
+      localStorage.removeItem(TOKEN_KEY);
+      setAdminUI(false);
+    }
+
+    // --- Funções Admin (itens / sorteios) ---
+
+    async function fetchItems() {
+      try {
+        const res = await fetch(API_BASE + "/api/items");
+        const data = await res.json();
+        renderItems(data);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderItems(items) {
+      if (!items || items.length === 0) {
+        itemsList.innerHTML = "<div class='status'>Nenhuma opção cadastrada ainda.</div>";
+        return;
+      }
+      itemsList.innerHTML = "";
+      items.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+
+        const span = document.createElement("span");
+        span.textContent = item.name;
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "btn-outline btn";
+        btnDel.style.fontSize = "0.75rem";
+        btnDel.textContent = "Remover";
+        btnDel.onclick = () => deleteItem(item.id);
+
+        row.appendChild(span);
+        row.appendChild(btnDel);
+        itemsList.appendChild(row);
+      });
+    }
+
+    async function deleteItem(id) {
+      if (!confirm("Tem certeza que deseja remover esta opção?")) return;
+      try {
+        const res = await fetch(API_BASE + "/api/items/" + id, {
+          method: "DELETE",
+          headers: {
+            "Authorization": "Bearer " + adminToken
+          }
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.error || "Erro ao remover item.");
+          return;
+        }
+        fetchItems();
+      } catch (e) {
+        console.error(e);
+        alert("Erro ao remover item.");
+      }
+    }
+
+    async function addItem() {
+      statusAdmin.textContent = "";
+      const name = itemInput.value.trim();
+      if (!name) {
+        statusAdmin.textContent = "Digite o nome da opção.";
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + "/api/items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + adminToken
+          },
+          body: JSON.stringify({ name })
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          statusAdmin.textContent = data.error || "Erro ao criar opção.";
+          return;
+        }
+        itemInput.value = "";
+        fetchItems();
+        statusAdmin.textContent = "Opção adicionada!";
+      } catch (e) {
+        console.error(e);
+        statusAdmin.textContent = "Erro ao criar opção.";
+      }
+    }
+
+    async function fetchDraws() {
+      if (!adminToken) return;
+      try {
+        const res = await fetch(API_BASE + "/api/draws", {
+          headers: {
+            "Authorization": "Bearer " + adminToken
+          }
+        });
+        if (!res.ok) {
+          // Se deu não autorizado, limpa token
+          if (res.status === 401) {
+            logoutAdmin();
+          }
+          return;
+        }
+        const data = await res.json();
+        renderDraws(data);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderDraws(draws) {
+      if (!draws || draws.length === 0) {
+        drawsList.innerHTML = "<div class='status'>Ninguém participou ainda.</div>";
+        return;
+      }
+      drawsList.innerHTML = "";
+      draws.forEach((d) => {
+        const row = document.createElement("div");
+        row.className = "draw-row";
+
+        const main = document.createElement("div");
+        main.className = "draw-row-main";
+        const strong = document.createElement("strong");
+        strong.textContent = d.person_name;
+        const small = document.createElement("small");
+        small.textContent = new Date(d.created_at).toLocaleString("pt-BR");
+        main.appendChild(strong);
+        main.appendChild(small);
+
+        const pillItem = document.createElement("span");
+        pillItem.className = "pill pill-item";
+        pillItem.textContent = d.item_name;
+
+        row.appendChild(main);
+        row.appendChild(pillItem);
+        drawsList.appendChild(row);
+      });
+    }
+
+    function refreshAdminData() {
+      fetchItems();
+      fetchDraws();
+    }
+
+    // --- Roleta / sorteio usuário ---
+    async function sortear() {
+      statusUser.textContent = "";
+      const nome = nomeInput.value.trim();
+      if (!nome) {
+        statusUser.textContent = "Digite seu nome antes de girar a roleta.";
+        return;
+      }
+
+      // anima "roleta"
+      rouletteBox.classList.add("spin");
+      resultText.textContent = "Girando...";
+      statusUser.textContent = "";
+
+      try {
+        const res = await fetch(API_BASE + "/api/draw", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: nome })
+        });
+        const data = await res.json();
+
+        setTimeout(() => {
+          rouletteBox.classList.remove("spin");
+
+          if (!res.ok) {
+            statusUser.textContent = data.error || "Erro ao sortear.";
+            statusUser.classList.add("error");
+            resultText.textContent = "— erro —";
+            return;
+          }
+
+          resultText.textContent = data.item || "— sem resultado —";
+          statusUser.classList.remove("error");
+
+          if (data.alreadyAssigned) {
+            statusUser.textContent = "Você já tinha participado, estamos mostrando o que você já ficou de levar 😉";
+          } else {
+            statusUser.textContent = "Anota aí o que você vai levar! Se voltar depois, vamos lembrar do seu item.";
+          }
+
+          // Atualiza painel admin (se estiver logado)
+          fetchDraws();
+        }, 800);
+      } catch (e) {
+        console.error(e);
+        rouletteBox.classList.remove("spin");
+        statusUser.textContent = "Erro de conexão ao sortear.";
+        statusUser.classList.add("error");
+        resultText.textContent = "— erro —";
+      }
+    }
+
+    // --- Eventos ---
+    btnSortear.addEventListener("click", sortear);
+    nomeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        sortear();
+      }
+    });
+
+    btnLogin.addEventListener("click", () => {
+      if (adminToken) {
+        // já está logado -> sair
+        if (confirm("Deseja sair do modo administrador?")) {
+          logoutAdmin();
+        }
+      } else {
+        showLoginModal(true);
+      }
+    });
+
+    btnCancelLogin.addEventListener("click", () => {
+      showLoginModal(false);
+    });
+
+    btnDoLogin.addEventListener("click", loginAdmin);
+    passField.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loginAdmin();
+    });
+
+    btnAddItem.addEventListener("click", addItem);
+    itemInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addItem();
+    });
+
+    // Inicialização
+    loadTokenFromStorage();
+  </script>
+</body>
+</html>
 
