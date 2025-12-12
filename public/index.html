@@ -12,7 +12,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0f172a, #1f2937);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #02010f 100%);
       color: #f9fafb;
       display: flex;
       align-items: center;
@@ -21,11 +21,11 @@
     }
     .app {
       width: 100%;
-      max-width: 900px;
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      max-width: 1100px;
+      background: radial-gradient(circle at top left, #020617, #020617 30%, #020617 100%);
+      border-radius: 32px;
+      padding: 28px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
       position: relative;
       overflow: hidden;
     }
@@ -33,7 +33,9 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at top right, rgba(251, 191, 36, 0.15), transparent 60%);
+      background:
+        radial-gradient(circle at -10% 0, rgba(251, 191, 36, 0.08), transparent 55%),
+        radial-gradient(circle at 110% 20%, rgba(56, 189, 248, 0.07), transparent 55%);
       pointer-events: none;
     }
     header {
@@ -46,10 +48,11 @@
     }
     header h1 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
+      letter-spacing: 0.02em;
     }
     header span {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       opacity: 0.8;
     }
     button, input {
@@ -58,15 +61,16 @@
     .btn {
       border: none;
       border-radius: 999px;
-      padding: 8px 16px;
+      padding: 8px 20px;
       cursor: pointer;
-      background: #facc15;
+      background: linear-gradient(135deg, #facc15, #f97316);
       color: #111827;
       font-weight: 600;
-      transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+      white-space: nowrap;
     }
     .btn:hover {
-      background: #eab308;
+      filter: brightness(1.05);
       box-shadow: 0 10px 25px rgba(250, 204, 21, 0.4);
       transform: translateY(-1px);
     }
@@ -77,66 +81,82 @@
     .btn-outline {
       background: transparent;
       color: #e5e7eb;
+      border-radius: 999px;
+      padding: 7px 18px;
       border: 1px solid rgba(148, 163, 184, 0.7);
       box-shadow: none;
+      font-weight: 500;
     }
     .btn-outline:hover {
-      background: rgba(148, 163, 184, 0.2);
+      background: rgba(15, 23, 42, 0.7);
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.6);
     }
     .main {
       display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
       gap: 24px;
-      align-items: stretch;
+      align-items: flex-start;
       position: relative;
       z-index: 1;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .main {
         grid-template-columns: 1fr;
       }
     }
     .card {
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 20px;
-      padding: 20px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.97));
+      border-radius: 24px;
+      padding: 20px 22px;
+      border: 1px solid rgba(30, 64, 175, 0.5);
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 0.8),
+        0 18px 45px rgba(15, 23, 42, 0.9);
     }
     .card h2 {
       margin-top: 0;
       margin-bottom: 12px;
       font-size: 1.25rem;
     }
+    .card p {
+      margin-top: 0;
+      font-size: 0.9rem;
+      color: #d1d5db;
+    }
     .field-group {
       margin-top: 12px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
     .field-group input {
       flex: 1;
       border-radius: 999px;
-      border: 1px solid rgba(75, 85, 99, 0.8);
-      padding: 8px 12px;
-      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 9px 14px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
       color: #f9fafb;
       outline: none;
+      min-width: 0;
+    }
+    .field-group input::placeholder {
+      color: #6b7280;
     }
     .field-group input:focus {
       border-color: #facc15;
       box-shadow: 0 0 0 1px #facc15;
     }
     .roulette {
-      margin-top: 24px;
-      height: 140px;
-      border-radius: 16px;
+      margin-top: 22px;
+      height: 130px;
+      border-radius: 18px;
       border: 1px dashed rgba(156, 163, 175, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
-      background: radial-gradient(circle at center, rgba(31, 41, 55, 0.95), rgba(15, 23, 42, 1));
+      background:
+        radial-gradient(circle at center, rgba(30, 64, 175, 0.25), rgba(15, 23, 42, 1));
     }
     .roulette-inner {
       font-size: 1.2rem;
@@ -149,33 +169,32 @@
     }
     @keyframes spinBorder {
       0% { transform: rotate(0deg); }
-      25% { transform: rotate(2deg); }
-      50% { transform: rotate(-2deg); }
+      25% { transform: rotate(1.5deg); }
+      50% { transform: rotate(-1.5deg); }
       100% { transform: rotate(0deg); }
     }
     .result-label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.12em;
       color: #9ca3af;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       text-align: center;
     }
     .result-item {
       font-size: 1.4rem;
-      font-weight: 700;
+      font-weight: 800;
       color: #fbbf24;
       text-align: center;
     }
     .status {
-      margin-top: 10px;
+      margin-top: 8px;
       font-size: 0.9rem;
       color: #9ca3af;
     }
     .status.error {
       color: #fca5a5;
     }
-    /* Admin */
     .badge-admin {
       font-size: 0.75rem;
       padding: 2px 8px;
@@ -193,36 +212,37 @@
       font-size: 1rem;
     }
     .items-list, .draws-list {
-      max-height: 180px;
+      max-height: 190px;
       overflow-y: auto;
       margin-top: 6px;
-      border-radius: 12px;
-      border: 1px solid rgba(55, 65, 81, 0.8);
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.85);
       padding: 6px;
-      background: rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 1));
     }
     .item-row, .draw-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 8px;
-      border-radius: 8px;
+      padding: 6px 9px;
+      border-radius: 10px;
       transition: background 0.1s;
     }
     .item-row:nth-child(odd),
     .draw-row:nth-child(odd) {
-      background: rgba(17, 24, 39, 0.8);
+      background: rgba(17, 24, 39, 0.9);
     }
     .item-row:nth-child(even),
     .draw-row:nth-child(even) {
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.95);
     }
     .item-row span, .draw-row span {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
     }
     .draw-row-main {
       display: flex;
       flex-direction: column;
+      gap: 2px;
     }
     .draw-row-main strong {
       font-size: 0.95rem;
@@ -233,18 +253,30 @@
     }
     .pill {
       font-size: 0.75rem;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
-      background: rgba(30, 64, 175, 0.3);
+      background: rgba(30, 64, 175, 0.4);
       color: #bfdbfe;
-      border: 1px solid rgba(59, 130, 246, 0.6);
+      border: 1px solid rgba(59, 130, 246, 0.7);
     }
     .pill-item {
-      background: rgba(120, 53, 15, 0.3);
+      background: rgba(120, 53, 15, 0.4);
       color: #fed7aa;
-      border-color: rgba(248, 153, 64, 0.7);
+      border-color: rgba(248, 153, 64, 0.8);
     }
-    /* Modal login simples */
+    .public-section-title {
+      margin-top: 18px;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+    .public-section-sub {
+      margin: 0 0 4px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+    /* Modal login */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -261,6 +293,7 @@
       width: 100%;
       max-width: 320px;
       border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
     .modal h2 {
       margin-top: 0;
@@ -283,6 +316,7 @@
       padding: 8px 10px;
       background: rgba(15, 23, 42, 0.9);
       color: #f9fafb;
+      outline: none;
     }
     .modal-actions {
       margin-top: 10px;
@@ -305,7 +339,7 @@
     </header>
 
     <div class="main">
-      <!-- Lado esquerdo: Roleta para qualquer usuário -->
+      <!-- Lado esquerdo: público -->
       <div class="card">
         <h2>Participar</h2>
         <p>Preencha seu nome e clique em <strong>Girar roleta</strong>. Se já tiver participado, vamos mostrar o que você já ficou de levar.</p>
@@ -317,13 +351,27 @@
 
         <div class="roulette" id="rouletteBox">
           <div class="roulette-inner">
-            <div class="result-label">Você vai levar</div>
+            <div class="result-label">VOCÊ VAI LEVAR</div>
             <div id="resultText" class="result-item">— aguardando sorteio —</div>
           </div>
         </div>
+
+        <!-- Itens públicos -->
+        <div>
+          <h3 class="public-section-title">Itens cadastrados na roleta</h3>
+          <p class="public-section-sub">Todo mundo consegue ver quais tipos de itens estão sendo sorteados.</p>
+          <div class="items-list" id="publicItemsList"></div>
+        </div>
+
+        <!-- Sorteios públicos -->
+        <div>
+          <h3 class="public-section-title">Quem já está levando o quê</h3>
+          <p class="public-section-sub">Lista visível para todos, para evitar repetição e organizar melhor.</p>
+          <div class="draws-list" id="publicDrawsList"></div>
+        </div>
       </div>
 
-      <!-- Lado direito: Área admin -->
+      <!-- Lado direito: admin -->
       <div class="card admin-section" id="adminCard" style="opacity: 0.5; pointer-events: none;">
         <h2>
           Painel do organizador
@@ -335,14 +383,14 @@
           <!-- Cadastro de itens -->
           <h3>Opções da roleta</h3>
           <div class="field-group">
-            <input type="text" id="itemInput" placeholder="Ex: Refrigerante, Espetinho, Sobremesa..." />
+            <input type="text" id="itemInput" placeholder="Ex: Carne, Refrigerante, Sobremesa..." />
             <button id="btnAddItem" class="btn">Adicionar</button>
           </div>
           <div id="statusAdmin" class="status"></div>
           <div class="items-list" id="itemsList"></div>
 
-          <!-- Lista de sorteios -->
-          <h3>Participantes & Sorteios</h3>
+          <!-- Lista de sorteios (admin) -->
+          <h3>Participantes & sorteios</h3>
           <div class="draws-list" id="drawsList"></div>
         </div>
       </div>
@@ -397,6 +445,10 @@
     const drawsList = document.getElementById("drawsList");
     const statusAdmin = document.getElementById("statusAdmin");
 
+    // novos: listas públicas
+    const publicItemsList = document.getElementById("publicItemsList");
+    const publicDrawsList = document.getElementById("publicDrawsList");
+
     let adminToken = null;
 
     function setAdminUI(enabled) {
@@ -425,7 +477,6 @@
       }
     }
 
-    // Carrega token do localStorage
     function loadTokenFromStorage() {
       const t = localStorage.getItem(TOKEN_KEY);
       if (t) {
@@ -474,19 +525,20 @@
       setAdminUI(false);
     }
 
-    // --- Funções Admin (itens / sorteios) ---
-
+    // --------- ITENS (admin + público) ---------
     async function fetchItems() {
       try {
         const res = await fetch(API_BASE + "/api/items");
         const data = await res.json();
-        renderItems(data);
+        renderItemsAdmin(data);
+        renderItemsPublic(data);
       } catch (e) {
         console.error(e);
+        publicItemsList.innerHTML = "<div class='status error'>Erro ao carregar itens.</div>";
       }
     }
 
-    function renderItems(items) {
+    function renderItemsAdmin(items) {
       if (!items || items.length === 0) {
         itemsList.innerHTML = "<div class='status'>Nenhuma opção cadastrada ainda.</div>";
         return;
@@ -508,6 +560,24 @@
         row.appendChild(span);
         row.appendChild(btnDel);
         itemsList.appendChild(row);
+      });
+    }
+
+    function renderItemsPublic(items) {
+      if (!items || items.length === 0) {
+        publicItemsList.innerHTML = "<div class='status'>Nenhuma opção cadastrada ainda.</div>";
+        return;
+      }
+      publicItemsList.innerHTML = "";
+      items.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+
+        const span = document.createElement("span");
+        span.textContent = item.name;
+
+        row.appendChild(span);
+        publicItemsList.appendChild(row);
       });
     }
 
@@ -562,29 +632,27 @@
       }
     }
 
+    // --------- SORTEIOS (admin) ---------
     async function fetchDraws() {
       if (!adminToken) return;
       try {
         const res = await fetch(API_BASE + "/api/draws", {
-          headers: {
-            "Authorization": "Bearer " + adminToken
-          }
+          headers: { "Authorization": "Bearer " + adminToken }
         });
         if (!res.ok) {
-          // Se deu não autorizado, limpa token
           if (res.status === 401) {
             logoutAdmin();
           }
           return;
         }
         const data = await res.json();
-        renderDraws(data);
+        renderDrawsAdmin(data);
       } catch (e) {
         console.error(e);
       }
     }
 
-    function renderDraws(draws) {
+    function renderDrawsAdmin(draws) {
       if (!draws || draws.length === 0) {
         drawsList.innerHTML = "<div class='status'>Ninguém participou ainda.</div>";
         return;
@@ -613,24 +681,59 @@
       });
     }
 
-    function refreshAdminData() {
-      fetchItems();
-      fetchDraws();
+    // --------- SORTEIOS (público) ---------
+    async function fetchPublicDraws() {
+      try {
+        const res = await fetch(API_BASE + "/api/draws");
+        const data = await res.json();
+        renderPublicDraws(data);
+      } catch (e) {
+        console.error(e);
+        publicDrawsList.innerHTML = "<div class='status error'>Erro ao carregar lista.</div>";
+      }
     }
 
-    // --- Roleta / sorteio usuário ---
+    function renderPublicDraws(draws) {
+      if (!draws || draws.length === 0) {
+        publicDrawsList.innerHTML = "<div class='status'>Ninguém participou ainda.</div>";
+        return;
+      }
+      publicDrawsList.innerHTML = "";
+      draws.forEach((d) => {
+        const row = document.createElement("div");
+        row.className = "draw-row";
+
+        const main = document.createElement("div");
+        main.className = "draw-row-main";
+        const strong = document.createElement("strong");
+        strong.textContent = d.person_name;
+        const small = document.createElement("small");
+        small.textContent = new Date(d.created_at).toLocaleString("pt-BR");
+        main.appendChild(strong);
+        main.appendChild(small);
+
+        const pillItem = document.createElement("span");
+        pillItem.className = "pill pill-item";
+        pillItem.textContent = d.item_name;
+
+        row.appendChild(main);
+        row.appendChild(pillItem);
+        publicDrawsList.appendChild(row);
+      });
+    }
+
+    // --------- ROLETa / SORTEAR ---------
     async function sortear() {
       statusUser.textContent = "";
+      statusUser.classList.remove("error");
       const nome = nomeInput.value.trim();
       if (!nome) {
         statusUser.textContent = "Digite seu nome antes de girar a roleta.";
         return;
       }
 
-      // anima "roleta"
       rouletteBox.classList.add("spin");
       resultText.textContent = "Girando...";
-      statusUser.textContent = "";
 
       try {
         const res = await fetch(API_BASE + "/api/draw", {
@@ -651,16 +754,14 @@
           }
 
           resultText.textContent = data.item || "— sem resultado —";
-          statusUser.classList.remove("error");
-
           if (data.alreadyAssigned) {
             statusUser.textContent = "Você já tinha participado, estamos mostrando o que você já ficou de levar 😉";
           } else {
             statusUser.textContent = "Anota aí o que você vai levar! Se voltar depois, vamos lembrar do seu item.";
           }
 
-          // Atualiza painel admin (se estiver logado)
-          fetchDraws();
+          fetchDraws();        // atualiza painel admin
+          fetchPublicDraws();  // atualiza lista pública
         }, 800);
       } catch (e) {
         console.error(e);
@@ -671,17 +772,14 @@
       }
     }
 
-    // --- Eventos ---
+    // --------- Eventos ---------
     btnSortear.addEventListener("click", sortear);
     nomeInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        sortear();
-      }
+      if (e.key === "Enter") sortear();
     });
 
     btnLogin.addEventListener("click", () => {
       if (adminToken) {
-        // já está logado -> sair
         if (confirm("Deseja sair do modo administrador?")) {
           logoutAdmin();
         }
@@ -690,10 +788,7 @@
       }
     });
 
-    btnCancelLogin.addEventListener("click", () => {
-      showLoginModal(false);
-    });
-
+    btnCancelLogin.addEventListener("click", () => showLoginModal(false));
     btnDoLogin.addEventListener("click", loginAdmin);
     passField.addEventListener("keydown", (e) => {
       if (e.key === "Enter") loginAdmin();
@@ -704,9 +799,10 @@
       if (e.key === "Enter") addItem();
     });
 
-    // Inicialização
+    // --------- Inicialização ---------
     loadTokenFromStorage();
+    fetchItems();
+    fetchPublicDraws();
   </script>
 </body>
 </html>
-
