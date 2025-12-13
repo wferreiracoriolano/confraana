@@ -4,17 +4,19 @@
   <meta charset="UTF-8" />
   <title>Roleta da Confraternização</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at top, #020617 0%, #020617 40%, #02010f 100%);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #02010f 100%);
       color: #f9fafb;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       padding: 16px;
     }
     .app {
@@ -24,11 +26,38 @@
       border-radius: 32px;
       padding: 28px;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+      position: relative;
+      overflow: hidden;
     }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 12px; }
-    header h1 { margin: 0; font-size: 1.8rem; }
-    header span { font-size: 0.9rem; opacity: 0.8; }
-
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at -10% 0, rgba(251, 191, 36, 0.08), transparent 55%),
+        radial-gradient(circle at 110% 20%, rgba(56, 189, 248, 0.07), transparent 55%);
+      pointer-events: none;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: 0.02em;
+    }
+    header span {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    button, input {
+      font-size: 1rem;
+    }
     .btn {
       border: none;
       border-radius: 999px;
@@ -37,353 +66,617 @@
       background: linear-gradient(135deg, #facc15, #f97316);
       color: #111827;
       font-weight: 600;
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+      white-space: nowrap;
+    }
+    .btn:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 10px 25px rgba(250, 204, 21, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
     }
     .btn-outline {
       background: transparent;
       color: #e5e7eb;
-      border: 1px solid rgba(148, 163, 184, 0.7);
       border-radius: 999px;
       padding: 7px 18px;
-      cursor: pointer;
-      white-space: nowrap;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: none;
+      font-weight: 500;
     }
-    .btn-danger {
-      background: transparent;
-      color: #fecaca;
-      border: 1px solid rgba(239, 68, 68, 0.6);
-      border-radius: 999px;
-      padding: 5px 12px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      white-space: nowrap;
+    .btn-outline:hover {
+      background: rgba(15, 23, 42, 0.7);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.6);
     }
-
-    .main { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
+      gap: 24px;
+      align-items: flex-start;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 900px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+    }
     .card {
       background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.97));
       border-radius: 24px;
-      padding: 20px;
+      padding: 20px 22px;
       border: 1px solid rgba(30, 64, 175, 0.5);
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 0.8),
+        0 18px 45px rgba(15, 23, 42, 0.9);
     }
-
-    .field-group { display: flex; gap: 10px; margin-top: 12px; }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+    }
+    .card p {
+      margin-top: 0;
+      font-size: 0.9rem;
+      color: #d1d5db;
+    }
+    .field-group {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+    }
     .field-group input {
       flex: 1;
       border-radius: 999px;
-      padding: 9px 14px;
       border: 1px solid rgba(55, 65, 81, 0.9);
-      background: #020617;
-      color: #fff;
+      padding: 9px 14px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
+      color: #f9fafb;
+      outline: none;
       min-width: 0;
     }
-
+    .field-group input::placeholder {
+      color: #6b7280;
+    }
+    .field-group input:focus {
+      border-color: #facc15;
+      box-shadow: 0 0 0 1px #facc15;
+    }
     .roulette {
-      margin-top: 20px;
-      height: 120px;
+      margin-top: 22px;
+      height: 130px;
       border-radius: 18px;
-      border: 1px dashed rgba(156, 163, 175, 0.6);
+      border: 1px dashed rgba(156, 163, 175, 0.7);
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at center, rgba(30, 64, 175, 0.25), rgba(15, 23, 42, 1));
+    }
+    .roulette-inner {
+      font-size: 1.2rem;
+      font-weight: 600;
       text-align: center;
-      padding: 10px;
+      max-width: 90%;
     }
-    .result-item { font-size: 1.4rem; font-weight: bold; color: #fbbf24; }
-
-    .list {
-      margin-top: 10px;
-      max-height: 240px;
+    .roulette.spin {
+      animation: spinBorder 0.8s ease-in-out 2;
+    }
+    @keyframes spinBorder {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(1.5deg); }
+      50% { transform: rotate(-1.5deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .result-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .result-item {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fbbf24;
+      text-align: center;
+    }
+    .status {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+    .status.error {
+      color: #fca5a5;
+    }
+    .badge-admin {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.2);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.7);
+      margin-left: 8px;
+    }
+    .items-list, .draws-list {
+      max-height: 260px;
       overflow-y: auto;
-      border-radius: 12px;
-      border: 1px solid rgba(55, 65, 81, 0.8);
+      margin-top: 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.85);
       padding: 6px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 1));
     }
-
-    .row {
+    .item-row, .draw-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
+      padding: 6px 9px;
       border-radius: 10px;
-      background: rgba(15, 23, 42, 0.9);
-      margin-bottom: 6px;
+    }
+    .draw-row:nth-child(odd) {
+      background: rgba(17, 24, 39, 0.9);
+    }
+    .draw-row:nth-child(even) {
+      background: rgba(15, 23, 42, 0.95);
+    }
+    .draw-row-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .draw-row-main strong {
       font-size: 0.95rem;
     }
-    .row strong { font-weight: 700; }
-    .muted { opacity: 0.75; font-size: 0.9rem; }
-
-    .admin-only { display: none; margin-top: 14px; }
-    .status { margin-top: 10px; font-size: 0.95rem; color: #cbd5e1; }
-    .status.error { color: #fecaca; }
-
-    @media (max-width: 520px) {
-      header { flex-direction: column; align-items: flex-start; }
-      .main { grid-template-columns: 1fr; }
-      .field-group { flex-direction: column; }
-      .field-group input, .field-group button { width: 100%; }
-      .app { padding: 18px; border-radius: 22px; }
+    .draw-row-main small {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(120, 53, 15, 0.4);
+      color: #fed7aa;
+      border: 1px solid rgba(248, 153, 64, 0.8);
+    }
+    /* Modal login */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal {
+      background: #020617;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 320px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+    .modal h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    .modal .field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    .modal label {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      color: #9ca3af;
+    }
+    .modal input {
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.8);
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #f9fafb;
+      outline: none;
+    }
+    .modal-actions {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
   </style>
 </head>
-
 <body>
-<div class="app">
-  <header>
-    <div>
-      <h1>Roleta da Confraternização</h1>
-      <span>Digite seu nome e descubra o que levar 🎉</span>
-    </div>
-    <button id="btnLogin" class="btn-outline">Login admin</button>
-  </header>
-
-  <div class="main">
-
-    <!-- PARTICIPANTE -->
-    <div class="card">
-      <h2>Participar</h2>
-      <div class="field-group">
-        <input id="nomeInput" placeholder="Seu nome completo">
-        <button id="btnSortear" class="btn">Girar roleta</button>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Roleta da Confraternização</h1>
+        <span>Digite seu nome, gire a roleta e descubra o que levar 🎉</span>
       </div>
-
-      <div class="roulette">
-        <div id="resultText" class="result-item">— aguardando sorteio —</div>
+      <div id="loginArea">
+        <button id="btnLogin" class="btn-outline btn">Login admin</button>
       </div>
+    </header>
 
-      <div id="statusUser" class="status"></div>
-    </div>
-
-    <!-- LISTA PÚBLICA + ADMIN -->
-    <div class="card">
-      <h2>Quem já está levando o quê</h2>
-      <div class="muted">Lista pública para todos.</div>
-      <div id="publicDrawsList" class="list"></div>
-
-      <div class="admin-only" id="adminArea">
-        <h3 style="margin-top:16px;">Opções da roleta (admin)</h3>
-
+    <div class="main">
+      <!-- Esquerda: participação -->
+      <div class="card">
+        <h2>Participar</h2>
+        <p>Preencha seu nome e clique em <strong>Girar roleta</strong>. Se já tiver participado, vamos mostrar o que você já ficou de levar.</p>
         <div class="field-group">
-          <input id="itemInput" placeholder="Ex: Carne, Refrigerante">
-          <button id="btnAddItem" class="btn">Adicionar</button>
+          <input type="text" id="nomeInput" placeholder="Seu nome completo" />
+          <button id="btnSortear" class="btn">Girar roleta</button>
         </div>
+        <div id="statusUser" class="status"></div>
 
-        <div id="statusAdmin" class="status"></div>
+        <div class="roulette" id="rouletteBox">
+          <div class="roulette-inner">
+            <div class="result-label">VOCÊ VAI LEVAR</div>
+            <div id="resultText" class="result-item">— aguardando sorteio —</div>
+          </div>
+        </div>
+      </div>
 
-        <div style="margin-top:12px;" class="muted">Itens cadastrados (admin pode remover):</div>
-        <div id="itemsList" class="list"></div>
+      <!-- Direita: lista pública + área admin -->
+      <div class="card">
+        <h2>
+          Lista da confraternização
+          <span id="badgeAdmin" class="badge-admin" style="display:none;">Admin ativo</span>
+        </h2>
+        <p>Todos conseguem ver quem já está levando o quê. Use <code>admin / admin</code> para cadastrar as opções da roleta.</p>
+
+        <h3 style="margin: 8px 0 4px;">Quem já está levando o quê</h3>
+        <div class="draws-list" id="publicDrawsList"></div>
+
+        <div id="adminContent" style="display:none; margin-top: 14px;">
+          <h3>Opções da roleta (somente admin)</h3>
+          <div class="field-group">
+            <input type="text" id="itemInput" placeholder="Ex: Carne, Refrigerante, Sobremesa..." />
+            <button id="btnAddItem" class="btn">Adicionar</button>
+          </div>
+          <div id="statusAdmin" class="status"></div>
+          <div class="items-list" id="itemsList"></div>
+        </div>
       </div>
     </div>
-
   </div>
-</div>
 
-<script>
-  const API = "";
-  const TOKEN_KEY = "admin_token";
+  <!-- Modal login -->
+  <div id="loginModal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <h2>Login administrador</h2>
+      <div class="field">
+        <label for="userField">Usuário</label>
+        <input id="userField" type="text" placeholder="admin" />
+      </div>
+      <div class="field">
+        <label for="passField">Senha</label>
+        <input id="passField" type="password" placeholder="admin" />
+      </div>
+      <div id="loginError" class="status error"></div>
+      <div class="modal-actions">
+        <button id="btnCancelLogin" class="btn-outline btn">Cancelar</button>
+        <button id="btnDoLogin" class="btn">Entrar</button>
+      </div>
+    </div>
+  </div>
 
-  const nomeInput = document.getElementById("nomeInput");
-  const btnSortear = document.getElementById("btnSortear");
-  const resultText = document.getElementById("resultText");
-  const statusUser = document.getElementById("statusUser");
+  <script>
+    const API_BASE = "";
+    const TOKEN_KEY = "confraternizacao_admin_token";
 
-  const btnLogin = document.getElementById("btnLogin");
-  const adminArea = document.getElementById("adminArea");
-  const itemInput = document.getElementById("itemInput");
-  const btnAddItem = document.getElementById("btnAddItem");
-  const itemsList = document.getElementById("itemsList");
-  const statusAdmin = document.getElementById("statusAdmin");
-  const publicDrawsList = document.getElementById("publicDrawsList");
+    const nomeInput = document.getElementById("nomeInput");
+    const btnSortear = document.getElementById("btnSortear");
+    const resultText = document.getElementById("resultText");
+    const rouletteBox = document.getElementById("rouletteBox");
+    const statusUser = document.getElementById("statusUser");
 
-  let token = localStorage.getItem(TOKEN_KEY);
+    const btnLogin = document.getElementById("btnLogin");
+    const loginModal = document.getElementById("loginModal");
+    const btnCancelLogin = document.getElementById("btnCancelLogin");
+    const btnDoLogin = document.getElementById("btnDoLogin");
+    const userField = document.getElementById("userField");
+    const passField = document.getElementById("passField");
+    const loginError = document.getElementById("loginError");
 
-  function updateAdminUI() {
-    adminArea.style.display = token ? "block" : "none";
-    btnLogin.textContent = token ? "Sair" : "Login admin";
-  }
+    const badgeAdmin = document.getElementById("badgeAdmin");
+    const adminContent = document.getElementById("adminContent");
+    const itemInput = document.getElementById("itemInput");
+    const btnAddItem = document.getElementById("btnAddItem");
+    const itemsList = document.getElementById("itemsList");
+    const statusAdmin = document.getElementById("statusAdmin");
 
-  btnLogin.onclick = async () => {
-    if (token) {
-      localStorage.removeItem(TOKEN_KEY);
-      token = null;
-      updateAdminUI();
-      statusAdmin.textContent = "";
-      return;
-    }
+    const publicDrawsList = document.getElementById("publicDrawsList");
 
-    const u = prompt("Usuário:", "admin");
-    if (u === null) return;
-    const p = prompt("Senha:", "");
-    if (p === null) return;
+    let adminToken = null;
 
-    try {
-      const res = await fetch(API + "/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: u, password: p })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        token = data.token;
-        localStorage.setItem(TOKEN_KEY, token);
-        updateAdminUI();
-        await loadItems();
+    function setAdminUI(enabled) {
+      if (enabled) {
+        adminContent.style.display = "block";
+        badgeAdmin.style.display = "inline-block";
+        btnLogin.textContent = "Sair";
       } else {
-        alert(data.error || "Login inválido");
+        adminContent.style.display = "none";
+        badgeAdmin.style.display = "none";
+        btnLogin.textContent = "Login admin";
       }
-    } catch (e) {
-      alert("Erro de conexão no login.");
     }
-  };
 
-  async function sortear() {
-    statusUser.textContent = "";
-    const name = nomeInput.value.trim();
-    if (!name) {
-      statusUser.textContent = "Digite seu nome.";
-      statusUser.classList.add("error");
-      return;
+    function showLoginModal(show) {
+      loginModal.style.display = show ? "flex" : "none";
+      if (show) {
+        loginError.textContent = "";
+        userField.value = "admin";
+        passField.value = "";
+        userField.focus();
+      }
     }
-    statusUser.classList.remove("error");
 
-    try {
-      const res = await fetch(API + "/api/draw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        resultText.textContent = "— erro —";
-        statusUser.textContent = data.error || "Erro ao sortear.";
-        statusUser.classList.add("error");
+    function loadTokenFromStorage() {
+      const t = localStorage.getItem(TOKEN_KEY);
+      if (t) {
+        adminToken = t;
+        setAdminUI(true);
+        refreshAdminData();
+      } else {
+        setAdminUI(false);
+      }
+    }
+
+    async function loginAdmin() {
+      loginError.textContent = "";
+      const username = userField.value.trim();
+      const password = passField.value.trim();
+      if (!username || !password) {
+        loginError.textContent = "Preencha usuário e senha.";
         return;
       }
-      resultText.textContent = data.item;
-      await loadDraws();
-    } catch (e) {
-      resultText.textContent = "— erro —";
-      statusUser.textContent = "Erro de conexão ao sortear.";
-      statusUser.classList.add("error");
-    }
-  }
-
-  async function loadDraws() {
-    try {
-      const res = await fetch(API + "/api/draws");
-      const data = await res.json().catch(() => []);
-      if (!data || data.length === 0) {
-        publicDrawsList.innerHTML = "<div class='muted'>Ninguém participou ainda.</div>";
-        return;
-      }
-      publicDrawsList.innerHTML = data.map(d =>
-        `<div class="row"><strong>${escapeHtml(d.person_name)}</strong><span>${escapeHtml(d.item_name)}</span></div>`
-      ).join("");
-    } catch (e) {
-      publicDrawsList.innerHTML = "<div class='status error'>Erro ao carregar lista pública.</div>";
-    }
-  }
-
-  async function loadItems() {
-    if (!token) return;
-    try {
-      const res = await fetch(API + "/api/items");
-      const data = await res.json().catch(() => []);
-      if (!data || data.length === 0) {
-        itemsList.innerHTML = "<div class='muted'>Nenhum item cadastrado.</div>";
-        return;
-      }
-
-      itemsList.innerHTML = data.map(i => `
-        <div class="row">
-          <span>${escapeHtml(i.name)}</span>
-          <button class="btn-danger" onclick="removeItem(${i.id}, '${escapeAttr(i.name)}')">Remover</button>
-        </div>
-      `).join("");
-    } catch (e) {
-      itemsList.innerHTML = "<div class='status error'>Erro ao carregar itens.</div>";
-    }
-  }
-
-  async function addItem() {
-    if (!token) return alert("Faça login como admin.");
-    statusAdmin.textContent = "";
-    const name = itemInput.value.trim();
-    if (!name) {
-      statusAdmin.textContent = "Digite o nome do item.";
-      statusAdmin.classList.add("error");
-      return;
-    }
-    statusAdmin.classList.remove("error");
-
-    try {
-      const res = await fetch(API + "/api/items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({ name })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        statusAdmin.textContent = data.error || "Erro ao adicionar item.";
-        statusAdmin.classList.add("error");
-        return;
-      }
-      itemInput.value = "";
-      statusAdmin.textContent = "Item adicionado!";
-      await loadItems();
-    } catch (e) {
-      statusAdmin.textContent = "Erro de conexão ao adicionar item.";
-      statusAdmin.classList.add("error");
-    }
-  }
-
-  // remove item (admin)
-  window.removeItem = async (id, name) => {
-    if (!token) return alert("Faça login como admin.");
-    const ok = confirm(`Remover o item "${name}"?\n\nObs: Se esse item já foi sorteado por alguém, o banco pode impedir ou você pode quebrar a lista de sorteios.`);
-    if (!ok) return;
-
-    try {
-      const res = await fetch(API + "/api/items/" + id, {
-        method: "DELETE",
-        headers: {
-          "Authorization": "Bearer " + token
+      try {
+        const res = await fetch(API_BASE + "/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          loginError.textContent = data.error || "Falha no login.";
+          return;
         }
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        alert(data.error || "Erro ao remover item.");
+        adminToken = data.token;
+        localStorage.setItem(TOKEN_KEY, adminToken);
+        showLoginModal(false);
+        setAdminUI(true);
+        refreshAdminData();
+      } catch (e) {
+        console.error(e);
+        loginError.textContent = "Erro ao tentar logar.";
+      }
+    }
+
+    function logoutAdmin() {
+      adminToken = null;
+      localStorage.removeItem(TOKEN_KEY);
+      setAdminUI(false);
+    }
+
+    async function fetchItems() {
+      try {
+        const res = await fetch(API_BASE + "/api/items");
+        const data = await res.json();
+        renderItemsAdmin(data);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderItemsAdmin(items) {
+      if (!items || items.length === 0) {
+        itemsList.innerHTML = "<div class='status'>Nenhuma opção cadastrada ainda.</div>";
         return;
       }
-      statusAdmin.textContent = "Item removido!";
-      statusAdmin.classList.remove("error");
-      await loadItems();
-    } catch (e) {
-      alert("Erro de conexão ao remover item.");
+      itemsList.innerHTML = "";
+      items.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+
+        const span = document.createElement("span");
+        span.textContent = item.name;
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "btn-outline btn";
+        btnDel.style.fontSize = "0.75rem";
+        btnDel.textContent = "Remover";
+        btnDel.onclick = () => deleteItem(item.id);
+
+        row.appendChild(span);
+        row.appendChild(btnDel);
+        itemsList.appendChild(row);
+      });
     }
-  };
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[s]));
-  }
-  function escapeAttr(str) {
-    return String(str).replace(/'/g, "\\'");
-  }
+    async function deleteItem(id) {
+      if (!confirm("Tem certeza que deseja remover esta opção?")) return;
+      try {
+        const res = await fetch(API_BASE + "/api/items/" + id, {
+          method: "DELETE",
+          headers: {
+            "Authorization": "Bearer " + adminToken
+          }
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.error || "Erro ao remover item.");
+          return;
+        }
+        fetchItems();
+      } catch (e) {
+        console.error(e);
+        alert("Erro ao remover item.");
+      }
+    }
 
-  btnSortear.onclick = sortear;
-  btnAddItem.onclick = addItem;
-  nomeInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sortear(); });
-  itemInput.addEventListener("keydown", (e) => { if (e.key === "Enter") addItem(); });
+    async function addItem() {
+      statusAdmin.textContent = "";
+      const name = itemInput.value.trim();
+      if (!name) {
+        statusAdmin.textContent = "Digite o nome da opção.";
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + "/api/items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + adminToken
+          },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          statusAdmin.textContent = data.error || "Erro ao criar opção.";
+          return;
+        }
+        itemInput.value = "";
+        fetchItems();
+        statusAdmin.textContent = "Opção adicionada!";
+      } catch (e) {
+        console.error(e);
+        statusAdmin.textContent = "Erro ao criar opção.";
+      }
+    }
 
-  updateAdminUI();
-  loadDraws();
-  if (token) loadItems();
-</script>
+    async function fetchPublicDraws() {
+      try {
+        const res = await fetch(API_BASE + "/api/draws");
+        const data = await res.json();
+        renderPublicDraws(data);
+      } catch (e) {
+        console.error(e);
+        publicDrawsList.innerHTML = "<div class='status error'>Erro ao carregar lista.</div>";
+      }
+    }
 
+    function renderPublicDraws(draws) {
+      if (!draws || draws.length === 0) {
+        publicDrawsList.innerHTML = "<div class='status'>Ninguém participou ainda.</div>";
+        return;
+      }
+      publicDrawsList.innerHTML = "";
+      draws.forEach((d) => {
+        const row = document.createElement("div");
+        row.className = "draw-row";
+
+        const main = document.createElement("div");
+        main.className = "draw-row-main";
+        const strong = document.createElement("strong");
+        strong.textContent = d.person_name;
+        const small = document.createElement("small");
+        small.textContent = new Date(d.created_at).toLocaleString("pt-BR");
+        main.appendChild(strong);
+        main.appendChild(small);
+
+        const pillItem = document.createElement("span");
+        pillItem.className = "pill";
+        pillItem.textContent = d.item_name;
+
+        row.appendChild(main);
+        row.appendChild(pillItem);
+        publicDrawsList.appendChild(row);
+      });
+    }
+
+    async function sortear() {
+      statusUser.textContent = "";
+      statusUser.classList.remove("error");
+      const nome = nomeInput.value.trim();
+      if (!nome) {
+        statusUser.textContent = "Digite seu nome antes de girar a roleta.";
+        return;
+      }
+
+      rouletteBox.classList.add("spin");
+      resultText.textContent = "Girando...";
+
+      try {
+        const res = await fetch(API_BASE + "/api/draw", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: nome })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        setTimeout(() => {
+          rouletteBox.classList.remove("spin");
+
+          if (!res.ok) {
+            statusUser.textContent = data.error || "Erro ao sortear.";
+            statusUser.classList.add("error");
+            resultText.textContent = "— erro —";
+            return;
+          }
+
+          resultText.textContent = data.item || "— sem resultado —";
+          if (data.alreadyAssigned) {
+            statusUser.textContent = "Você já tinha participado, estamos mostrando o que você já ficou de levar 😉";
+          } else {
+            statusUser.textContent = "Anota aí o que você vai levar! Se voltar depois, vamos lembrar do seu item.";
+          }
+
+          fetchPublicDraws(); // atualiza lista pública
+        }, 800);
+      } catch (e) {
+        console.error(e);
+        rouletteBox.classList.remove("spin");
+        statusUser.textContent = "Erro de conexão ao sortear.";
+        statusUser.classList.add("error");
+        resultText.textContent = "— erro —";
+      }
+    }
+
+    function refreshAdminData() {
+      fetchItems();
+    }
+
+    // eventos
+    btnSortear.addEventListener("click", sortear);
+    nomeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sortear();
+    });
+
+    btnLogin.addEventListener("click", () => {
+      if (adminToken) {
+        if (confirm("Deseja sair do modo administrador?")) {
+          logoutAdmin();
+        }
+      } else {
+        showLoginModal(true);
+      }
+    });
+
+    btnCancelLogin.addEventListener("click", () => showLoginModal(false));
+    btnDoLogin.addEventListener("click", loginAdmin);
+    passField.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loginAdmin();
+    });
+
+    btnAddItem.addEventListener("click", addItem);
+    itemInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addItem();
+    });
+
+    // inicialização
+    loadTokenFromStorage();
+    fetchPublicDraws();
+  </script>
 </body>
 </html>
